@@ -90,19 +90,51 @@ const friendsWith = (customer) => {
     return friends;
 };
 const mostCommonTags = () => {
-    let mostCommon = _.reduce(customers, (prev, curV, curI) => {
-        let tags = prev;
-        _.each(curV.tags, (e, i, a) => {
-            let curTag = e;
-            if(tags[curTag] !== undefined && tags[curTag] === 1) {
-                tags[curTag]++;
+    
+    let tags = [];
+    let count = [];
+    _.each(customers, function(el) {
+        _.each(el.tags, function(tag, index) {
+            let found = _.indexOf(tags, tag);
+            if(found === -1) {
+                tags.push(tag);
+                count.push(1);
             } else {
-                tags[curTag] = 1;
+                count[found]++;
             }
+            
         });
-        return tags;  
-    }, {});
-    return mostCommon;
+    });
+    
+    let tagsAndCount = {};
+    _.each(count, function(curEle, curIndex) {
+       tagsAndCount[tags[curIndex]] = curEle;
+    });
+    
+    function getHighest(ob) {
+        let max = -1;
+        _.each(ob, function(el) {
+           if(el > max) {
+               max = el;
+           }
+        });
+        return max;
+    }
+    
+    let keys = Object.keys(tagsAndCount);
+    for(let i = 0; i < keys.length; i++) {
+      if(tagsAndCount[keys[i]] < getHighest(tagsAndCount)) {
+          delete tagsAndCount[keys[i]]
+      }  
+    }
+    keys = Object.keys(tagsAndCount);
+    while(keys.length !== 3 || keys.length < 3) {
+        delete tagsAndCount[keys[0]];
+        keys = Object.keys(tagsAndCount);
+    }
+    
+    return tagsAndCount;
+    
 };
 const genderSummary = () => {
     let genders = _.reduce(customers, (prevSum, curVal, curIndex) => {
@@ -151,4 +183,4 @@ console.log(`
      
      gender summary: ${JSON.stringify(genderSummary(), null, '\t')}`
 );
-
+//${JSON.stringify(mostCommonTags(), null, '\t')}
